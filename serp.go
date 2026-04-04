@@ -1,6 +1,7 @@
 package p
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,7 +24,10 @@ func MockSerpLensSearch() (*LensResponse, error) {
 	return &result, nil
 }
 
-func SerpLensSearch(imageURL string, serpAPIKey string) (*LensResponse, error) {
+func SerpLensSearch(ctx context.Context, imageURL string, serpAPIKey string) (*LensResponse, error) {
+	logger := GetLogger(ctx, "helper::serpLensSearch")
+	logger.Info("starting serp lens search", "imageURL", imageURL)
+
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
@@ -40,23 +44,29 @@ func SerpLensSearch(imageURL string, serpAPIKey string) (*LensResponse, error) {
 
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
+		logger.Error("failed to build request", "error", err)
 		return nil, err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
+		logger.Error("serp api call failed", "error", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		logger.Error("unexpected response status", "status", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
 	}
+	logger.Info("serp api call successful", "status", resp.StatusCode)
 
 	var result LensResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		logger.Error("failed to decode response", "error", err)
 		return nil, err
 	}
+	logger.Info("serp response decoded", "sections", len(result.AboutThisImage.Sections))
 
 	return &result, nil
 }

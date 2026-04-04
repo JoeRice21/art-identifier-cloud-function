@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -10,23 +11,25 @@ import (
 )
 
 func main() {
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-    vertexAIProjectID := os.Getenv("VERTEX_PROJECT_ID")
-    vertexAILocation := os.Getenv("VERTEX_PROJECT_LOCATION")
+	vertexAIProjectID := os.Getenv("VERTEX_PROJECT_ID")
+	vertexAILocation := os.Getenv("VERTEX_PROJECT_LOCATION")
 
-    lensResult, err := p.MockSerpLensSearch()
-    if err != nil {
-        log.Fatal(err)
-    }
+	ctx := p.NewTraceContext(context.Background())
 
-    geminiResponse, err := p.GenerateArtworkResponse(lensResult, vertexAIProjectID, vertexAILocation)
-    if err != nil {
-        log.Fatal(err)
-    }
+	lensResult, err := p.MockSerpLensSearch()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    fmt.Printf("%+v\n", geminiResponse)
+	geminiResponse, err := p.GenerateArtworkResponse(ctx, lensResult, vertexAIProjectID, vertexAILocation)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%+v\n", geminiResponse)
 }

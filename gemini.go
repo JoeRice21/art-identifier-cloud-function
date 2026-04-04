@@ -8,8 +8,9 @@ import (
 	"google.golang.org/genai"
 )
 
-func GenerateArtworkResponse(lensResponse *LensResponse, vertexAIProjectID string, vertexAILocation string) (*ArtworkResponse, error) {
-	ctx := context.Background()
+func GenerateArtworkResponse(ctx context.Context, lensResponse *LensResponse, vertexAIProjectID string, vertexAILocation string) (*ArtworkResponse, error) {
+	logger := GetLogger(ctx, "helper::generateArtworkResponse")
+	logger.Info("starting artwork identification")
 
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		Project:  vertexAIProjectID,
@@ -17,8 +18,10 @@ func GenerateArtworkResponse(lensResponse *LensResponse, vertexAIProjectID strin
 		Backend:  genai.BackendVertexAI,
 	})
 	if err != nil {
+		logger.Error("failed to create genai client", "error", err)
 		return nil, err
 	}
+	logger.Info("genai client created")
 
 	geminiResponseSchema := map[string]any{
 		"type": "object",
@@ -57,19 +60,24 @@ func GenerateArtworkResponse(lensResponse *LensResponse, vertexAIProjectID strin
     %s
 	`, lensResponse)
 
+	logger.Info("sending prompt to gemini", "model", "gemini-2.5-flash")
 	resp, err := client.Models.GenerateContent(ctx,
 		"gemini-2.5-flash",
 		genai.Text(prompt),
 		config,
 	)
 	if err != nil {
+		logger.Error("gemini generate content failed", "error", err)
 		return nil, err
 	}
+	logger.Info("gemini response received")
 
 	var artworkResponse ArtworkResponse
 	if err := json.Unmarshal([]byte(resp.Text()), &artworkResponse); err != nil {
+		logger.Error("failed to unmarshal gemini response", "error", err, "rawResponse", resp.Text())
 		return nil, err
 	}
 
+	logger.Info("artwork identified", "artist", artworkResponse.Artist, "title", artworkResponse.ArtworkTitle)
 	return &artworkResponse, nil
 }

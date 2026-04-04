@@ -2,7 +2,6 @@ package p
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -14,8 +13,14 @@ func init() {
 }
 
 func ArtworkHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := NewTraceContext(r.Context())
+	logger := GetLogger(ctx, "controller::ArtworkHandler")
+
 	imageURL := r.URL.Query().Get("imageURL")
+	logger.Info("received request", "imageURL", imageURL)
+
 	if imageURL == "" {
+		logger.Error("missing imageURL parameter")
 		http.Error(w, "missing imageURL query parameter", http.StatusBadRequest)
 		return
 	}
@@ -24,18 +29,22 @@ func ArtworkHandler(w http.ResponseWriter, r *http.Request) {
 	vertexAIProjectID := os.Getenv("VERTEX_PROJECT_ID")
 	vertexAILocation := os.Getenv("VERTEX_PROJECT_LOCATION")
 
-	lensResult, err := SerpLensSearch(imageURL, serpAPIKey)
+	lensResult, err := SerpLensSearch(ctx, imageURL, serpAPIKey)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("lens search failed: %s", err), http.StatusInternalServerError)
+		logger.Error("serp lens search failed", "error", err)
+		http.Error(w, "lens search failed", http.StatusInternalServerError)
+		return
+	}
+	logger.Info("serp lens search successful", "sections", len(lensResult.AboutThisImage.Sections))
+
+	artworkResponse, err := GenerateArtworkResponse(ctx, lensResult, vertexAIProjectID, vertexAILocation)
+	if err != nil {
+		logger.Error("gemini failed", "error", err)
+		http.Error(w, "gemini failed", http.StatusInternalServerError)
 		return
 	}
 
-	artworkResponse, err := GenerateArtworkResponse(lensResult, vertexAIProjectID, vertexAILocation)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("gemini failed: %s", err), http.StatusInternalServerError)
-		return
-	}
-
+	logger.Info("request complete", "artist", artworkResponse.Artist, "title", artworkResponse.ArtworkTitle)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(artworkResponse)
 }
