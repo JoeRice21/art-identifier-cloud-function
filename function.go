@@ -1,4 +1,4 @@
-package main
+package p
 
 import (
 	"encoding/json"
@@ -24,13 +24,13 @@ func ArtworkHandler(w http.ResponseWriter, r *http.Request) {
 	vertexAIProjectID := os.Getenv("VERTEX_PROJECT_ID")
 	vertexAILocation := os.Getenv("VERTEX_PROJECT_LOCATION")
 
-	lensResult, err := serpLensSearch(imageURL, serpAPIKey)
+	lensResult, err := SerpLensSearch(imageURL, serpAPIKey)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("lens search failed: %s", err), http.StatusInternalServerError)
 		return
 	}
 
-	artworkResponse, err := generateArtworkResponse(lensResult, vertexAIProjectID, vertexAILocation)
+	artworkResponse, err := GenerateArtworkResponse(lensResult, vertexAIProjectID, vertexAILocation)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("gemini failed: %s", err), http.StatusInternalServerError)
 		return

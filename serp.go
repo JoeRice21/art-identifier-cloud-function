@@ -1,4 +1,4 @@
-package main
+package p
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func mockSerpLensSearch() (*LensResponse, error) {
+func MockSerpLensSearch() (*LensResponse, error) {
 	data, err := os.ReadFile("mock_about_this_image_response.json")
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func mockSerpLensSearch() (*LensResponse, error) {
 	return &result, nil
 }
 
-func serpLensSearch(imageURL string, serpAPIKey string) (*LensResponse, error) {
+func SerpLensSearch(imageURL string, serpAPIKey string) (*LensResponse, error) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}

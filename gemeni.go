@@ -1,4 +1,4 @@
-package main
+package p
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"google.golang.org/genai"
 )
 
-func generateArtworkResponse(lensResponse *LensResponse, vertexAIProjectID string, vertexAILocation string) (*ArtworkResponse, error) {
+func GenerateArtworkResponse(lensResponse *LensResponse, vertexAIProjectID string, vertexAILocation string) (*ArtworkResponse, error) {
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
