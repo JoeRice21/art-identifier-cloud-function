@@ -12,6 +12,7 @@
 # below:
 .git
 .gitignore
+main.go
 
 node_modules
 #!include:.gitignore
