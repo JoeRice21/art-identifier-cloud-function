@@ -1,4 +1,4 @@
-module backend-serp-go
+module github.com/JoeRice21/backend-serp-go
 
 go 1.24
 
