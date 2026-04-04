@@ -12,4 +12,4 @@ steps:
       - --region=europe-west1
       - --set-env-vars=SERP_KEY=$_SERP_KEY,VERTEX_PROJECT_ID=$_VERTEX_PROJECT_ID,VERTEX_PROJECT_LOCATION=$_VERTEX_PROJECT_LOCATION
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: NONE
