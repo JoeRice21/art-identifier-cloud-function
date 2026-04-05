@@ -4,12 +4,28 @@ steps:
       - gcloud
       - functions
       - deploy
-      - artwork-api
+      - artwork-identifier
+      - --source=./artwork
       - --runtime=go123
       - --trigger-http
       - --allow-unauthenticated
       - --entry-point=ArtworkHandler
       - --region=europe-west1
       - --set-env-vars=SERP_KEY=$_SERP_KEY,VERTEX_PROJECT_ID=$_VERTEX_PROJECT_ID,VERTEX_PROJECT_LOCATION=$_VERTEX_PROJECT_LOCATION
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - image-upload
+      - --source=./upload
+      - --runtime=go123
+      - --trigger-http
+      - --allow-unauthenticated
+      - --entry-point=ImageUploadHandler
+      - --region=europe-west1
+      - --set-env-vars=GCS_BUCKET_NAME=$_GCS_BUCKET_NAME
+
 options:
   logging: CLOUD_LOGGING_ONLY
