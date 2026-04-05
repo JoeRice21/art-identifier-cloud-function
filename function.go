@@ -1,4 +1,4 @@
-package p
+package artwork
 
 import (
 	"encoding/json"

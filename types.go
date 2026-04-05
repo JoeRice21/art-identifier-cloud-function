@@ -1,4 +1,4 @@
-package p
+package artwork
 
 type LensResponse struct {
 	AboutThisImage AboutThisImage `json:"about_this_image"`
