@@ -27,5 +27,19 @@ steps:
       - --region=europe-west1
       - --set-env-vars=GCS_BUCKET_NAME=$_GCS_BUCKET_NAME
 
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - functions
+      - deploy
+      - orchestrator
+      - --source=./orchestrator
+      - --runtime=go123
+      - --trigger-http
+      - --allow-unauthenticated
+      - --entry-point=OrchestratorHandler
+      - --region=europe-west1
+      - --set-env-vars=UPLOAD_FUNCTION_URL=$_UPLOAD_FUNCTION_URL,ARTWORK_FUNCTION_URL=$_ARTWORK_FUNCTION_URL
+
 options:
   logging: CLOUD_LOGGING_ONLY
